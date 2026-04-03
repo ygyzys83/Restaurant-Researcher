@@ -56,7 +56,7 @@ if run_button:
                         """
 
             response = client.models.generate_content(
-                model="gemini-2.0-flash",  # Use 2.0 Flash for better grounding reliability
+                model="gemini-2.5-flash-lite",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
