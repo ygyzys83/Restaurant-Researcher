@@ -37,7 +37,9 @@ if run_button:
 
                         ACT AS: A local restaurant concierge in 2026.
 
-                        GOAL: Find {num_results} restaurants meeting these criteria:
+                        GOAL: Find UP TO {num_results} restaurants meeting these criteria below. 
+                        If fewer than {num_results} perfect matches exist, provide as many as possible
+                        (at least 1) that strictly meet the rating/review criteria:
                         - Distance: Within {miles} DRIVING miles of this specific address: {address}.
                         - Rating: Minimum {min_rating} stars in GOOGLE MAPS REVIEWS.
                         - Reviews: Minimum {min_reviews} reviews in GOOGLE MAPS REVIEWS.
