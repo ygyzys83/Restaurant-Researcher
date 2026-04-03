@@ -49,7 +49,19 @@ if run_button:
                         4. HEADER STYLING: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">.
                         5. CELL STYLING: <td style="padding:8px; border:1px solid #ddd;">.
                         6. COLUMNS: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale.
-                        7. VALUE SCORE RATIONALE: In the VALUE SCORE RATIONALE column, include 2-3 bullet points on the factors and chain of thought logic used to determine the score.
+                        7. VALUE SCORE RATIONALE FORMAT: The column MUST use an HTML unordered list (<ul><li>...</li></ul>). 
+                           NO plain sentences. EXACTLY 2-3 bullets per cell.
+                           
+                           EXAMPLE OF DESIRED RATIONALE CELL FORMAT:
+                                <td>
+                                    <ul>
+                                        <li>High review-to-rating ratio suggests consistent quality.</li>
+                                        <li>Price point is 20% lower than neighborhood average.</li>
+                                        <li>Recent 2026 check-ins confirm wait times under 15 mins.</li>
+                                    </ul>
+                                </td>
+        
+                                [Begin Table Generation Now]
 
                         """
 
