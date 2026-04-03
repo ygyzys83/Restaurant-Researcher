@@ -62,14 +62,20 @@ if run_button:
                 )
             )
 
-            # --- ROBUST DEFENSIVE CLEANING ---
             raw_text = response.text if response.text else ""
 
-            # 1. Strip Markdown code blocks if the AI ignored instructions
+            # Strip Markdown code blocks if the AI ignored instructions
             clean_html = re.sub(r'```(?:html)?', '', raw_text).strip()
 
-            # 2. Extract only the content between <table> tags to avoid "Thinking" text
+            # Extract only the content between <table> tags to avoid "Thinking" text
             table_match = re.search(r'(<table.*?>.*?</table>)', clean_html, re.DOTALL | re.IGNORECASE)
+
+            # Get Token usage from the response object
+            usage = response.usage_metadata
+            in_tokens = usage.prompt_token_count
+            out_tokens = usage.candidates_token_count
+            # Calculate Cost (Flash-Lite 2.5: $0.10/1M in, $0.40/1M out)
+            est_cost = (in_tokens * 0.0000001) + (out_tokens * 0.0000004)
 
             if table_match:
                 research_results = table_match.group(1)
@@ -77,6 +83,18 @@ if run_button:
                 # If no table found, use the cleaned text but ensure it's not empty
                 research_results = clean_html if len(clean_html) > 10 else "No table found in AI response."
 
+            # Display Success and Results (Existing Code)
+            st.success("Research complete and email sent!")
+            st.markdown(research_results, unsafe_allow_html=True)
+
+            # Display the separate Cost Observation section at the bottom
+            st.divider()
+            st.subheader("Cost Observation")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Input Tokens", in_tokens)
+            c2.metric("Output Tokens", out_tokens)
+            c3.metric("Est. API Cost", f"${est_cost:.5f}")
+            st.caption("Note: Does not include flat-rate Google Search grounding fees.")
 
             # --- Email Logic ---
             msg = EmailMessage()
@@ -91,27 +109,6 @@ if run_button:
                 server.starttls()
                 server.login(st.secrets["GMAIL_USER"], st.secrets["GMAIL_PASS"])
                 server.send_message(msg)
-
-            # 1. Get Token usage from the response object
-            usage = response.usage_metadata
-            in_tokens = usage.prompt_token_count
-            out_tokens = usage.candidates_token_count
-
-            # 2. Calculate Cost (Flash-Lite 2.5: $0.10/1M in, $0.40/1M out)
-            est_cost = (in_tokens * 0.0000001) + (out_tokens * 0.0000004)
-
-            # 3. Display Success and Results (Existing Code)
-            st.success("Research complete and email sent!")
-            st.markdown(research_results, unsafe_allow_html=True)
-
-            # 4. Display the separate Cost Observation section at the bottom
-            st.divider()
-            st.subheader("Cost Observation")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Input Tokens", in_tokens)
-            c2.metric("Output Tokens", out_tokens)
-            c3.metric("Est. API Cost", f"${est_cost:.5f}")
-            st.caption("Note: Does not include flat-rate Google Search grounding fees.")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
