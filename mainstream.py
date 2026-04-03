@@ -76,55 +76,44 @@ if run_button:
                 )
             )
 
+            # 1. Process Data
             raw_text = response.text if response.text else ""
-
-            # Strip Markdown code blocks if the AI ignored instructions
             clean_html = re.sub(r'```(?:html)?', '', raw_text).strip()
-
-            # Extract only the content between <table> tags to avoid "Thinking" text
             table_match = re.search(r'(<table.*?>.*?</table>)', clean_html, re.DOTALL | re.IGNORECASE)
 
-            # Get Token usage from the response object
-            usage = response.usage_metadata
-            in_tokens = usage.prompt_token_count
-            out_tokens = usage.candidates_token_count
-            # Calculate Cost (Flash-Lite 2.5: $0.10/1M in, $0.40/1M out)
-            est_cost = (in_tokens * 0.0000001) + (out_tokens * 0.0000004)
+            research_results = table_match.group(1) if table_match else clean_html
 
-            if table_match:
-                research_results = table_match.group(1)
-            else:
-                # If no table found, use the cleaned text but ensure it's not empty
-                research_results = clean_html if len(clean_html) > 10 else "No table found in AI response."
+            # 2. Store usage in a dictionary to use later
+            usage_data = {
+                "in": response.usage_metadata.prompt_token_count,
+                "out": response.usage_metadata.candidates_token_count
+            }
 
-            # Display Success and Results (Existing Code)
-            st.success("Research complete and email sent!")
-            st.markdown(research_results, unsafe_allow_html=True)
-
-            # Display the separate Cost Observation section at the bottom
-            st.divider()
-            st.subheader("Cost Observation")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Input Tokens", in_tokens)
-            c2.metric("Output Tokens", out_tokens)
-            c3.metric("Est. API Cost", f"${est_cost:.5f}")
-            st.caption("Note: Does not include flat-rate Google Search grounding fees.")
-
-            # --- Email Logic ---
+            # 3. Email Logic (Keep this inside try so we catch SMTP errors)
             msg = EmailMessage()
-            msg['Subject'] = f"Food Research: {res_type}"
-            msg['From'] = st.secrets["GMAIL_USER"]
-            msg['To'] = recipient_email
-            # Use 'research_results' directly; it already contains the HTML
-            msg.set_content("Please enable HTML to view this report.")
-            msg.add_alternative(f"<html><body>{research_results}</body></html>", subtype='html')
-
+            # ... [Your Email Setup] ...
             with smtplib.SMTP("smtp.gmail.com", port=587) as server:
                 server.starttls()
                 server.login(st.secrets["GMAIL_USER"], st.secrets["GMAIL_PASS"])
                 server.send_message(msg)
 
+            st.success("Research complete and email sent!")
+
         except Exception as e:
             st.error(f"An error occurred: {e}")
-            # Log the full error to help debug
-            st.info("Check if your API key or Gmail secrets are correct.")
+
+            # --- DISPLAY SECTION (Outside of try/except) ---
+        if research_results:
+            st.markdown(research_results, unsafe_allow_html=True)
+
+        if usage_data:
+            st.divider()
+            st.subheader("Cost Observation")
+            # Use variables from our dictionary
+            est_cost = (usage_data["in"] * 0.0000001) + (usage_data["out"] * 0.0000004)
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Input Tokens", usage_data["in"])
+            c2.metric("Output Tokens", usage_data["out"])
+            c3.metric("Est. API Cost", f"${est_cost:.5f}")
+            st.caption("Note: Does not include flat-rate Google Search grounding fees.")
