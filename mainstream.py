@@ -30,7 +30,7 @@ if run_button:
 
             grounding_tool = types.Tool(google_search=types.GoogleSearch())
 
-            search_query = f"Best {res_type} restaurants near {address} with at least {min_rating} stars and {min_reviews} reviews"
+            search_query = f"Best {res_type} restaurants near {address} with at least {min_rating} stars and {min_reviews} reviews in GOOGLE MAPS"
 
             prompt = f"""
                         Search Query: {search_query}
