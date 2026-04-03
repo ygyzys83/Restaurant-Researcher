@@ -16,7 +16,7 @@ with st.sidebar:
     res_type = st.text_input("Restaurant Type", "")
     miles = st.number_input("Max Distance (miles)", min_value=1, value=5)
     address = st.text_input("From Address", "City, State")
-    min_rating = st.slider("Min Google Rating", 1.0, 5.0, 4.0)
+    min_rating = st.slider("Min Google Rating", 1.0, 5.0, 4.0, format="%1.1f")
     min_reviews = st.number_input("Min Review Count", min_value=0, value=50)
     num_results = st.number_input("Number of Results", 1, 10, 5)
     recipient_email = st.text_input("Recipient Email", st.secrets["GMAIL_USER"])
@@ -39,6 +39,12 @@ if run_button:
             2. MANDATORY: You MUST discard any restaurant with a Google Rating below {min_rating}. 
             3. If a restaurant fails the {min_rating} threshold, do not mention it; find a replacement that complies.
             4. Check every result twice: [Rating >= {min_rating}] AND [Review Count >= {min_reviews}]. If both aren't True, it is an invalid result.
+            
+            VERIFICATION PROTOCOL:
+            1. For every restaurant found, you MUST cross-reference the address and name using your search tool to ensure it currently exists at that location in 2026.
+            2. If you cannot find a direct, recent confirmation of the restaurant's rating or review count, DISCARD IT.
+            3. If a restaurant has permanently closed or moved outside the {miles} mile radius, DISCARD IT.
+            4. DO NOT INVENT DATA. If you are missing a piece of info (like the exact review count), perform an additional search specifically for that restaurant.
             
             VALUE SCORE CALCULATION:
             For each restaurant, calculate a 1-10 "Value for Price" score. 
@@ -68,6 +74,8 @@ if run_button:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
+                    temperature=0.1,  # Lower = more factual, less "creative"
+                    top_k=1,  # 1 = only chooses the most certain next word
                 )
             )
 
