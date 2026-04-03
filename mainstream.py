@@ -92,8 +92,26 @@ if run_button:
                 server.login(st.secrets["GMAIL_USER"], st.secrets["GMAIL_PASS"])
                 server.send_message(msg)
 
+            # 1. Get Token usage from the response object
+            usage = response.usage_metadata
+            in_tokens = usage.prompt_token_count
+            out_tokens = usage.candidates_token_count
+
+            # 2. Calculate Cost (Flash-Lite 2.5: $0.10/1M in, $0.40/1M out)
+            est_cost = (in_tokens * 0.0000001) + (out_tokens * 0.0000004)
+
+            # 3. Display Success and Results (Existing Code)
             st.success("Research complete and email sent!")
             st.markdown(research_results, unsafe_allow_html=True)
+
+            # 4. Display the separate Cost Observation section at the bottom
+            st.divider()
+            st.subheader("Cost Observation")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Input Tokens", in_tokens)
+            c2.metric("Output Tokens", out_tokens)
+            c3.metric("Est. API Cost", f"${est_cost:.5f}")
+            st.caption("Note: Does not include flat-rate Google Search grounding fees.")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
