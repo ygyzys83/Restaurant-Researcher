@@ -78,6 +78,7 @@ if run_button:
                 # If no table found, use the cleaned text but ensure it's not empty
                 research_results = clean_html if len(clean_html) > 10 else "No table found in AI response."
 
+
             # --- Email Logic ---
             msg = EmailMessage()
             msg['Subject'] = f"Food Research: {res_type}"
