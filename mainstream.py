@@ -10,7 +10,7 @@ from email.message import EmailMessage
 st.title("GT's Grounded Restaurant Researcher v2026")
 st.write("Find local spots and get the results emailed to you.")
 
-# --- Sidebar for Settings (Replacing the Tkinter Window) ---
+# --- Sidebar for Settings
 with st.sidebar:
     st.header("Search Parameters")
     res_type = st.text_input("Restaurant Type", "")
@@ -39,45 +39,19 @@ if run_button:
                         ACT AS: A local restaurant concierge in 2026.
 
                         GOAL: Find {num_results} restaurants meeting these criteria:
-                        - Distance: Within {miles} miles of {address}.
-                        - Rating: {min_rating}+ stars.
-                        - Reviews: {min_reviews}+ count.
+                        - Distance: Within {miles} DRIVING miles of this specific address: {address}.
+                        - Rating: Minimum {min_rating} stars in GOOGLE MAPS REVIEWS.
+                        - Reviews: Minimum {min_reviews} reviews in GOOGLE MAPS REVIEWS.
 
                         RULES:
                         1. VERIFY: Use the search tool to ensure each spot is OPEN in 2026.
-                        2. VALUE SCORE: For each item evaluated, provide a Value Score (1-10) based on the following transparent logic:
-                                
-                                Factors Considered: 
-                                    Briefly list the key criteria used (e.g., price, features, reliability).
-                                Thinking Process: 
-                                    Describe the step-by-step logic used to weigh these factors.
-                                Rationale: 
-                                    A 1-2 sentence explanation of why the final score was awarded, referencing specific evidence from the data.
-                                Value Score: 
-                                    [Final Number]
-                                
-                                HERE IS AN EXAMPLE OF VALUE SCORE:
-                                
-                                Factors Considered:
-                                    Ingredient Quality: Freshness of toppings and dough fermentation.
-                                    Value-to-Size Ratio: Total surface area vs. price point ($22 for 14").
-                                    Consistency: Review data regarding crust char and topping distribution.
-                                Thinking Process:
-                                    I first analyzed the price: at $22 for a medium-large, it sits 15% above the local average, requiring premium performance to justify the cost.
-                                    I then looked at the "Thinking Logic" for the crust—the 48-hour cold ferment is a high-effort technique that justifies a price premium over "emergency dough" shops.
-                                    Finally, I cross-referenced "soggy middle" complaints; since these were under 5% of recent reports, the technical execution appears stable.
-                                Rationale: 
-                                    While slightly pricier than a standard chain, the authentic Neapolitan technique and high-grade buffalo mozzarella provide a gourmet experience that justifies the $4 "luxury tax" per pie.
-                                Value Score: 
-                                    8.2/10
-                                
-                        3. FORMATTING: Return ONLY a valid HTML table. 
-                        4. STYLING: Use <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">.
-                        5. HEADER STYLING: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">.
-                        6. CELL STYLING: <td style="padding:8px; border:1px solid #ddd;">.
-                        7. COLUMNS: Name, Distance, Rating, Review Count, Value Score.
+                        2. FORMATTING: Return ONLY a valid HTML table. Do NOT include markdown blocks (```html). Start immediately with <table>.
+                        3. STYLING: Use <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">.
+                        4. HEADER STYLING: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">.
+                        5. CELL STYLING: <td style="padding:8px; border:1px solid #ddd;">.
+                        6. COLUMNS: Name, Distance, Rating, Review Count, Value Score, Value Score Rationale.
+                        7. VALUE SCORE RATIONALE: In the VALUE SCORE RATIONALE column, include 2-3 bullet points on the factors and chain of thought logic used to determine the score.
 
-                        Do NOT include markdown blocks (```html). Start immediately with <table>.
                         """
 
             response = client.models.generate_content(
