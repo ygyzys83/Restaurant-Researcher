@@ -37,13 +37,19 @@ if run_button:
             CONSTRAINTS:
             - Min Rating: {min_rating}
             - Min Review Count: {min_reviews}
-            - Research Reddit and Google for a 1-10 "Value Score" (price versus quality). Only include the result if the value score is 7/10 or better. Otherwise replace it with another result.
+            
+            VALUE SCORE CALCULATION:
+            For each restaurant, calculate a 1-10 "Value for Price" score. 
+            Before stating the score, you MUST provide a "Rationale" field that explains:
+            1. The estimated average price per person based on reviews.
+            2. The consensus on portion size and ingredient quality.
+            3. How the cost compares to other restaurants of the same type in that specific area.
 
             FORMATTING RULES:
-            1. Return ONLY the HTML. Do NOT include markdown code blocks like ```html.
+            1. Return ONLY the final HTML table and reviews. Do NOT include markdown code blocks like ```html. Do NOT include your internal reasoning or 'thought' process in the final output.
             2. Use this specific inline CSS for the table: <table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd; font-family: sans-serif;">
             3. Use <th> and <td> tags with padding: 8px and border: 1px solid #ddd.
-            4. COLUMNS: Name, Distance, Type, Rating, Review Count, Value Score (1-10), Summary.
+            4. COLUMNS: Name, Distance, Type, Rating, Review Count, Value Score (1-10), Value Score Rationale, Summary.
             5. REVIEWS SECTION: Beneath the table, provide 1 or 2 specific illustrative reviews for each restaurant. 
             Prioritize Reddit user comments that may speak to the "Value Score".
             """
@@ -51,7 +57,11 @@ if run_button:
             response = client.models.generate_content(
                 model="gemini-2.5-flash-lite",
                 contents=prompt,
-                config=types.GenerateContentConfig(tools=[grounding_tool])
+                config=types.GenerateContentConfig(
+                    tools=[grounding_tool],
+                    # This enables the "Chain of Thought" reasoning
+                    include_thoughts=True
+                )
             )
 
             # Defensive Cleaning
