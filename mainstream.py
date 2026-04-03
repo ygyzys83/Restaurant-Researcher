@@ -59,8 +59,6 @@ if run_button:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
-                    # This enables the "Chain of Thought" reasoning
-                    include_thoughts=True
                 )
             )
 
