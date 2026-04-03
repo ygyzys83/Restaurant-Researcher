@@ -33,10 +33,12 @@ if run_button:
 
             prompt = f"""
             ACT AS: A local restaurant concierge.
-            Find exactly {num_results} {res_type} restaurants within {miles} miles of {address}.
-            CONSTRAINTS:
-            - Min Rating: {min_rating}
-            - Min Review Count: {min_reviews}
+            
+            STRICT FILTERING RULES:
+            1. Find exactly {num_results} {res_type} restaurants within {miles} DRIVING miles of {address}.
+            2. MANDATORY: You MUST discard any restaurant with a Google Rating below {min_rating}. 
+            3. If a restaurant fails the {min_rating} threshold, do not mention it; find a replacement that complies.
+            4. Check every result twice: [Rating >= {min_rating}] AND [Review Count >= {min_reviews}]. If both aren't True, it is an invalid result.
             
             VALUE SCORE CALCULATION:
             For each restaurant, calculate a 1-10 "Value for Price" score. 
@@ -47,11 +49,18 @@ if run_button:
 
             FORMATTING RULES:
             1. Return ONLY the final HTML table and reviews. Do NOT include markdown code blocks like ```html. Do NOT include your internal reasoning or 'thought' process in the final output.
-            2. Use this specific inline CSS for the table: <table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd; font-family: sans-serif;">
-            3. Use <th> and <td> tags with padding: 8px and border: 1px solid #ddd.
-            4. COLUMNS: Name, Distance, Type, Rating, Review Count, Value Score (1-10), Value Score Rationale, Summary.
-            5. REVIEWS SECTION: Beneath the table, provide 1 or 2 specific illustrative reviews for each restaurant. 
-            Prioritize Reddit user comments that may speak to the "Value Score".
+            
+            2. TABLE STRUCTURE: Use <table style="border-collapse: collapse; width: 100%; border: 2px solid #2c3e50; font-family: sans-serif; color: #333333; background-color: #ffffff;">
+            
+            3. HEADER STYLING (CRITICAL): Every <th> tag MUST use this style: <th style="background-color: #2c3e50; color: #ffffff; padding: 12px; border: 1px solid #444; text-align: left;">
+            
+            4. CELL STYLING: Every <td> tag MUST use this style: <td style="padding: 10px; border: 1px solid #dddddd; color: #333333; background-color: #ffffff;">
+            
+            5. COLUMNS: Name, Distance, Type, Rating, Review Count, Value Score (1-10), Value Score Rationale, Summary.
+            
+            6. REVIEWS SECTION: Beneath the table, provide 1 or 2 specific illustrative reviews for each restaurant. 
+            Format reviews using <blockquote> or a styled <div> to ensure they are distinct from the table.
+            Prioritize Reddit user comments that speak to the "Value Score".
             """
 
             response = client.models.generate_content(
