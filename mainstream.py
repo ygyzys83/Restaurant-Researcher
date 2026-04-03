@@ -23,11 +23,15 @@ with st.sidebar:
     run_button = st.button("Research & Email")
 
 # --- The Logic (Inside the button click) ---
+# --- The Logic (Inside the button click) ---
 if run_button:
+    # 1. Initialize variables to None so they exist even if the code fails
+    research_results = None
+    usage_data = None
+
     with st.spinner("Searching live web..."):
         try:
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-
             grounding_tool = types.Tool(google_search=types.GoogleSearch())
 
             search_query = f"Best {res_type} restaurants near {address} with at least {min_rating} stars and {min_reviews} reviews in GOOGLE MAPS"
@@ -72,27 +76,35 @@ if run_button:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
-                    temperature=0.2,  # 0.2 is better for data-heavy tasks
+                    temperature=0.2,
                 )
             )
 
-            # 1. Process Data
+            # 2. Process Response
             raw_text = response.text if response.text else ""
             clean_html = re.sub(r'```(?:html)?', '', raw_text).strip()
             table_match = re.search(r'(<table.*?>.*?</table>)', clean_html, re.DOTALL | re.IGNORECASE)
 
-            research_results = table_match.group(1) if table_match else clean_html
+            if table_match:
+                research_results = table_match.group(1)
+            else:
+                research_results = clean_html if len(clean_html) > 10 else "No table found."
 
-            # 2. Store usage in a dictionary to use later
+            # 3. Capture Usage
             usage_data = {
                 "in": response.usage_metadata.prompt_token_count,
                 "out": response.usage_metadata.candidates_token_count
             }
 
-            # 3. Email Logic (Keep this inside try so we catch SMTP errors)
+            # 4. Email Logic
             msg = EmailMessage()
-            # ... [Your Email Setup] ...
-            with smtplib.SMTP("smtp.gmail.com", port=587) as server:
+            msg['Subject'] = f"Food Research: {res_type}"
+            msg['From'] = st.secrets["GMAIL_USER"]
+            msg['To'] = recipient_email
+            msg.set_content("Please enable HTML to view this report.")
+            msg.add_alternative(f"<html><body>{research_results}</body></html>", subtype='html')
+
+            with smtplib.SMTP("://gmail.com", port=587) as server:
                 server.starttls()
                 server.login(st.secrets["GMAIL_USER"], st.secrets["GMAIL_PASS"])
                 server.send_message(msg)
@@ -101,19 +113,25 @@ if run_button:
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
+            st.info("Check if your API key or Gmail secrets are correct.")
 
-            # --- DISPLAY SECTION (Outside of try/except) ---
-        if research_results:
-            st.markdown(research_results, unsafe_allow_html=True)
+    # --- 5. DISPLAY SECTION (Always safe now) ---
+    if research_results:
+        st.markdown(research_results, unsafe_allow_html=True)
 
-        if usage_data:
-            st.divider()
-            st.subheader("Cost Observation")
-            # Use variables from our dictionary
-            est_cost = (usage_data["in"] * 0.0000001) + (usage_data["out"] * 0.0000004)
+    if usage_data:
+        st.divider()
+        st.subheader("Cost Observation")
 
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Input Tokens", usage_data["in"])
-            c2.metric("Output Tokens", usage_data["out"])
-            c3.metric("Est. API Cost", f"${est_cost:.5f}")
-            st.caption("Note: Does not include flat-rate Google Search grounding fees.")
+        # Wrap in int() to satisfy the type checker and prevent None errors
+        in_tokens = int(usage_data.get("in", 0))
+        out_tokens = int(usage_data.get("out", 0))
+
+        # Calculate Cost
+        est_cost = (in_tokens * 0.0000001) + (out_tokens * 0.0000004)
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Input Tokens", in_tokens)
+        c2.metric("Output Tokens", out_tokens)
+        c3.metric("Est. API Cost", f"${est_cost:.5f}")
+        st.caption("Note: Does not include flat-rate Google Search grounding fees.")
