@@ -31,67 +31,61 @@ if run_button:
 
             grounding_tool = types.Tool(google_search=types.GoogleSearch())
 
-            prompt = f"""
-            ACT AS: A local restaurant concierge.
-            
-            FILTERING & FALLBACK RULES:
-            1. TARGET CRITERIA: Aim for Google Rating >= {min_rating} and Review Count >= {min_reviews}.
-            2. DATA GAPS: If you find a great restaurant but the exact "Review Count" is missing from search results, DO NOT REJECT THE SEARCH. Instead, use an estimate (e.g., "100+") or label it "N/A" in the table and proceed.
-            3. RADIUS: Prioritize spots within {miles} miles. If a spot is slightly outside but highly rated, you may include it but clearly state its distance.
-            
-            VERIFICATION PROTOCOL:
-            1. For every restaurant found, you MUST cross-reference the address and name using your search tool to ensure it currently exists at that location in 2026.
-            2. If a restaurant has permanently closed, DISCARD IT.
-            
-            VALUE SCORE CALCULATION:
-            For each restaurant, calculate a 1-10 "Value for Price" score. 
-            Before stating the score, you MUST provide a "Rationale" field that explains:
-            1. The estimated average price per person based on reviews.
-            2. The consensus on portion size and ingredient quality.
-            3. How the cost compares to other restaurants of the same type in that specific area.
+            search_query = f"Best {res_type} restaurants near {address} with at least {min_rating} stars and {min_reviews} reviews"
 
-            FORMATTING RULES:
-            1. Return ONLY the final HTML table and reviews. Do NOT include markdown code blocks like ```html. Do NOT include your internal reasoning or 'thought' process in the final output.
-            2. TABLE STRUCTURE: Use <table style="border-collapse: collapse; width: 100%; border: 2px solid #2c3e50; font-family: sans-serif; color: #333333; background-color: #ffffff;">
-            3. HEADER STYLING (CRITICAL): Every <th> tag MUST use this style: <th style="background-color: #2c3e50; color: #ffffff; padding: 12px; border: 1px solid #444; text-align: left;">
-            4. CELL STYLING: Every <td> tag MUST use this style: <td style="padding: 10px; border: 1px solid #dddddd; color: #333333; background-color: #ffffff;">
-            5. COLUMNS: Name, Distance, Type, Rating, Review Count, Value Score (1-10), Value Score Rationale, Summary.
-            6. REVIEWS SECTION: Beneath the table, provide 1 or 2 specific illustrative reviews for each restaurant. 
-            Format reviews using <blockquote> or a styled <div> to ensure they are distinct from the table.
-            Prioritize Reddit user comments that speak to the "Value Score".
-            """
+            prompt = f"""
+                        Search Query: {search_query}
+
+                        ACT AS: A local restaurant concierge in 2026.
+
+                        GOAL: Find {num_results} restaurants meeting these criteria:
+                        - Distance: Within {miles} miles of {address}.
+                        - Rating: {min_rating}+ stars.
+                        - Reviews: {min_reviews}+ count.
+
+                        RULES:
+                        1. VERIFY: Use the search tool to ensure each spot is OPEN in 2026.
+                        2. VALUE SCORE: Provide a 1-10 score. Include a short 1-sentence Rationale (price vs quality).
+                        3. FORMATTING: Return ONLY a valid HTML table. 
+                        4. STYLING: Use <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">.
+                        5. HEADER STYLING: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">.
+                        6. CELL STYLING: <td style="padding:8px; border:1px solid #ddd;">.
+                        7. COLUMNS: Name, Distance, Rating, Review Count, Value Score, Rationale.
+
+                        Do NOT include markdown blocks (```html). Start immediately with <table>.
+                        """
 
             response = client.models.generate_content(
-                model="gemini-2.5-flash-lite",
+                model="gemini-2.0-flash",  # Use 2.0 Flash for better grounding reliability
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
-                    temperature=0.1,  # Lower = more factual, less "creative"
+                    temperature=0.0,  # 0.0 is better for data-heavy tasks
                 )
             )
 
-            # Defensive Cleaning
-            research_results = response.text if response.text else ""
+            # --- ROBUST DEFENSIVE CLEANING ---
+            raw_text = response.text if response.text else ""
 
-            # Look for HTML structure
-            html_match = re.search(r'(<(table|html|div).*?>.*</\2>)', research_results, re.DOTALL | re.IGNORECASE)
+            # 1. Strip Markdown code blocks if the AI ignored instructions
+            clean_html = re.sub(r'```(?:html)?', '', raw_text).strip()
 
-            if html_match:
-                # If we found HTML, use it
-                research_results = html_match.group(1)
+            # 2. Extract only the content between <table> tags to avoid "Thinking" text
+            table_match = re.search(r'(<table.*?>.*?</table>)', clean_html, re.DOTALL | re.IGNORECASE)
+
+            if table_match:
+                research_results = table_match.group(1)
             else:
-                # If no HTML, strip backticks if they exist, or just use the raw text
-                research_results = research_results.replace("```html", "").replace("```", "").strip()
-
-            # Final safety check: if everything is empty, provide a fallback message
-            if not research_results:
-                research_results = "<p>No results found or AI returned an empty response.</p>"
+                # If no table found, use the cleaned text but ensure it's not empty
+                research_results = clean_html if len(clean_html) > 10 else "No table found in AI response."
 
             # --- Email Logic ---
             msg = EmailMessage()
             msg['Subject'] = f"Food Research: {res_type}"
             msg['From'] = st.secrets["GMAIL_USER"]
             msg['To'] = recipient_email
+            # Use 'research_results' directly; it already contains the HTML
+            msg.set_content("Please enable HTML to view this report.")
             msg.add_alternative(f"<html><body>{research_results}</body></html>", subtype='html')
 
             with smtplib.SMTP("smtp.gmail.com", port=587) as server:
@@ -100,7 +94,9 @@ if run_button:
                 server.send_message(msg)
 
             st.success("Research complete and email sent!")
-            st.markdown(research_results, unsafe_allow_html=True)  # Shows results in the browser too!
+            st.markdown(research_results, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"An error occurred: {e}")
+            # Log the full error to help debug
+            st.info("Check if your API key or Gmail secrets are correct.")
