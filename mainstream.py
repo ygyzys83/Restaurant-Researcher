@@ -26,7 +26,6 @@ with st.sidebar:
 if run_button:
     with st.spinner("Searching live web..."):
         try:
-            # Use Streamlit Secrets for your keys (Set these up in the Streamlit Cloud dashboard)
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
             grounding_tool = types.Tool(google_search=types.GoogleSearch())
