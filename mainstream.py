@@ -80,9 +80,21 @@ if run_button:
             )
 
             # Defensive Cleaning
-            research_results = response.text
+            research_results = response.text if response.text else ""
+
+            # Look for HTML structure
             html_match = re.search(r'(<(table|html|div).*?>.*</\2>)', research_results, re.DOTALL | re.IGNORECASE)
-            research_results = html_match.group(1) if html_match else research_results.strip()
+
+            if html_match:
+                # If we found HTML, use it
+                research_results = html_match.group(1)
+            else:
+                # If no HTML, strip backticks if they exist, or just use the raw text
+                research_results = research_results.replace("```html", "").replace("```", "").strip()
+
+            # Final safety check: if everything is empty, provide a fallback message
+            if not research_results:
+                research_results = "<p>No results found or AI returned an empty response.</p>"
 
             # --- Email Logic ---
             msg = EmailMessage()
