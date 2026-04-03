@@ -13,13 +13,13 @@ st.write("Find local spots and get the results emailed to you.")
 # --- Sidebar for Settings (Replacing the Tkinter Window) ---
 with st.sidebar:
     st.header("Search Parameters")
-    res_type = st.text_input("Restaurant Type", "Italian")
+    res_type = st.text_input("Restaurant Type", "")
     miles = st.number_input("Max Distance (miles)", min_value=1, value=5)
     address = st.text_input("From Address", "City, State")
     min_rating = st.slider("Min Google Rating", 1.0, 5.0, 4.0)
     min_reviews = st.number_input("Min Review Count", min_value=0, value=50)
-    num_results = st.number_input("Number of Results", 1, 15, 5)
-
+    num_results = st.number_input("Number of Results", 1, 10, 5)
+    recipient_email = st.text_input("Recipient Email", st.secrets["GMAIL_USER"])
     run_button = st.button("Research & Email")
 
 # --- The Logic (Inside the button click) ---
@@ -61,9 +61,9 @@ if run_button:
 
             # --- Email Logic ---
             msg = EmailMessage()
-            msg['Subject'] = f"Grounded Research: {res_type}"
+            msg['Subject'] = f"Food Research: {res_type}"
             msg['From'] = st.secrets["GMAIL_USER"]
-            msg['To'] = st.secrets["GMAIL_USER"]
+            msg['To'] = recipient_email
             msg.add_alternative(f"<html><body>{research_results}</body></html>", subtype='html')
 
             with smtplib.SMTP("smtp.gmail.com", port=587) as server:
