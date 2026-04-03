@@ -49,7 +49,7 @@ if run_button:
                         3. STYLING: Use <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">.
                         4. HEADER STYLING: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">.
                         5. CELL STYLING: <td style="padding:8px; border:1px solid #ddd;">.
-                        6. COLUMNS: Name, Distance, Rating, Review Count, Value Score, Value Score Rationale.
+                        6. COLUMNS: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale.
                         7. VALUE SCORE RATIONALE: In the VALUE SCORE RATIONALE column, include 2-3 bullet points on the factors and chain of thought logic used to determine the score.
 
                         """
