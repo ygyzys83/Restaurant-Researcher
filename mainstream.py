@@ -7,7 +7,7 @@ from email.message import EmailMessage
 
 
 # --- UI Header ---
-st.title("Grounded Restaurant Researcher v2026")
+st.title("GT's Grounded Restaurant Researcher v2026")
 st.write("Find local spots and get the results emailed to you.")
 
 # --- Sidebar for Settings (Replacing the Tkinter Window) ---
