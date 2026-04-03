@@ -15,7 +15,7 @@ with st.sidebar:
     st.header("Search Parameters")
     res_type = st.text_input("Restaurant Type", "")
     miles = st.number_input("Max Distance (miles)", min_value=1, value=5)
-    address = st.text_input("From Address", "City, State")
+    address = st.text_input("From Address", "350 Macarthur Blvd, Oakland, CA")
     min_rating = st.slider("Min Google Rating", 1.0, 5.0, 4.0, format="%1.1f")
     min_reviews = st.number_input("Min Review Count", min_value=0, value=50)
     num_results = st.number_input("Number of Results", 1, 10, 5)
@@ -35,7 +35,7 @@ if run_button:
             ACT AS: A local restaurant concierge.
             
             STRICT FILTERING RULES:
-            1. Find exactly {num_results} {res_type} restaurants within {miles} DRIVING miles of {address}.
+            1. Find exactly {num_results} {res_type} restaurants within {miles} DRIVING miles of the specific starting point: {address}.
             2. MANDATORY: You MUST discard any restaurant with a Google Rating below {min_rating}. 
             3. If a restaurant fails the {min_rating} threshold, do not mention it; find a replacement that complies.
             4. Check every result twice: [Rating >= {min_rating}] AND [Review Count >= {min_reviews}]. If both aren't True, it is an invalid result.
@@ -74,8 +74,7 @@ if run_button:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
-                    temperature=0.1,  # Lower = more factual, less "creative"
-                    top_k=1,  # 1 = only chooses the most certain next word
+                    temperature=0.5,  # Lower = more factual, less "creative"
                 )
             )
 
