@@ -60,7 +60,7 @@ if run_button:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
-                    temperature=0.0,  # 0.0 is better for data-heavy tasks
+                    temperature=0.2,  # 0.2 is better for data-heavy tasks
                 )
             )
 
