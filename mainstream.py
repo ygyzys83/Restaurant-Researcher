@@ -45,9 +45,8 @@ if run_button:
 
                         RULES:
                         1. VERIFY: Use the search tool to ensure each spot is OPEN in 2026.
-                        2. VALUE SCORE: Provide a 1-10 score. 
-                                Scoring Instructions:
-                                    For each item evaluated, provide a Value Score (1-10) based on the following transparent logic:
+                        2. VALUE SCORE: For each item evaluated, provide a Value Score (1-10) based on the following transparent logic:
+                                
                                 Factors Considered: 
                                     Briefly list the key criteria used (e.g., price, features, reliability).
                                 Thinking Process: 
@@ -57,10 +56,8 @@ if run_button:
                                 Value Score: 
                                     [Final Number]
                                 
-                                HERE IS AN EXAMPLE OF VALUE SCORE RATIONALE:
+                                HERE IS AN EXAMPLE OF VALUE SCORE:
                                 
-                                Restaurant: 
-                                    [Tony’s Artisanal Pizza Co.]
                                 Factors Considered:
                                     Ingredient Quality: Freshness of toppings and dough fermentation.
                                     Value-to-Size Ratio: Total surface area vs. price point ($22 for 14").
@@ -78,10 +75,7 @@ if run_button:
                         4. STYLING: Use <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">.
                         5. HEADER STYLING: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">.
                         6. CELL STYLING: <td style="padding:8px; border:1px solid #ddd;">.
-                        7. COLUMNS: Name, Distance, Rating, Review Count, Value Score, Rationale.
-                        8. REVIEWS SECTION: Beneath the table, provide 1 or 2 specific illustrative reviews for each restaurant. 
-                        Format reviews using <blockquote> or a styled <div> to ensure they are distinct from the table.
-                        Prioritize Reddit user comments that speak to the "Value Score".
+                        7. COLUMNS: Name, Distance, Rating, Review Count, Value Score.
 
                         Do NOT include markdown blocks (```html). Start immediately with <table>.
                         """
