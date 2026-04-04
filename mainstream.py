@@ -6,7 +6,8 @@ import re
 from email.message import EmailMessage
 
 # --- UI Header ---
-st.title("GT's Grounded Restaurant Researcher v2026")
+st.title("Neighborhood Nosh")
+st.caption("Real local spots. Zero guesswork.")
 
 # App Password Check (placed at the very top)
 if "app_unlocked" not in st.session_state:
@@ -31,7 +32,7 @@ if not st.session_state.app_unlocked:
     st.stop()  # This stops execution of the rest of the script
 
 # --- UI Header (only shown after unlock) ---
-st.write("Find local spots and get the results emailed to you.")
+st.write("Real local spots. Zero guesswork.")
 
 # --- Sidebar for Settings
 with st.sidebar:
