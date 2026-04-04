@@ -56,7 +56,7 @@ if run_button:
                 - Header cells: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">
                 - Data cells: <td style="padding:8px; border:1px solid #ddd; vertical-align:top;">
                 - Columns in this order: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale
-                - For Value Score Rationale: Use chain of thought logic to justify the Value Score. Use exactly 2-3 short bullets in an HTML <ul><li>...</li></ul>.
+                - For Value Score Rationale: Use chain of thought logic to justify the Value Score. Use exactly 2-3 short bullets in an HTML <ul><li>...</li></ul>. Prioritize Reddit and Google Maps reviews for insight.
                 
                 Begin generating the table now.
 
