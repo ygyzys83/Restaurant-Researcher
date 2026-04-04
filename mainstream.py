@@ -75,7 +75,7 @@ if run_button:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
-                    temperature=0.2,
+                    temperature=0.1,
                 )
             )
 
