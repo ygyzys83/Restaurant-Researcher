@@ -34,41 +34,33 @@ if run_button:
                 google_maps=types.GoogleMaps()
             )
 
-            search_query = f"Highest rated {res_type} restaurants near {address} Google Maps"
-
             prompt = f"""
-                        ACT AS: A local restaurant concierge in 2026.
+                You are a strict local restaurant researcher using Google Maps data in 2026.
+                
+                Task: Find up to {num_results} actual {res_type} restaurants near {address}.
+                
+                Requirements — follow these strictly:
+                - Only {res_type} restaurants or restaurants that have a reputation for good {res_type}.
+                - Within approximately {miles} driving miles of {address}
+                - Minimum {min_rating} stars on Google Maps
+                - Minimum {min_reviews} reviews on Google Maps
+                - Only places that are currently open or have recent activity.
+                
+                Do NOT return any restaurant that fails the rating or review minimum. It is better to return fewer results than to include lower-quality ones.
+                
+                Output rules:
+                - Return ONLY a valid HTML table. Start immediately with <table>.
+                - Do not add any explanation or markdown.
+                - Use this exact table style:
+                  <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">
+                - Header cells: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">
+                - Data cells: <td style="padding:8px; border:1px solid #ddd; vertical-align:top;">
+                - Columns in this order: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale
+                - For Value Score Rationale: Use exactly 2-3 short bullets in an HTML <ul><li>...</li></ul>. No full sentences.
+                
+                Begin generating the table now.
 
-                        GOAL: 
-                        Find UP TO {num_results} real {res_type} restaurants near {address}. 
-                        If fewer than {num_results} perfect matches exist, provide as many as possible
-                        (at least 1) that strictly meet the rating/review criteria:
-                        - Distance: Within {miles} DRIVING miles of this specific address: {address}.
-                        - Rating: Minimum {min_rating} stars in GOOGLE MAPS.
-                        - Reviews: Minimum {min_reviews} reviews in GOOGLE MAPS.
-                        - Verify: Use the search tool to ensure each spot is OPEN in 2026.
-
-                        RULES:
-                        1. FORMATTING: Return ONLY a valid HTML table. Do NOT include markdown blocks (```html). Start immediately with <table>.
-                        2. STYLING: Use <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">.
-                        3. HEADER STYLING: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">.
-                        4. CELL STYLING: <td style="padding:8px; border:1px solid #ddd;">.
-                        5. COLUMNS: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale.
-                        6. VALUE SCORE RATIONALE FORMAT: The column MUST use an HTML unordered list (<ul><li>...</li></ul>). 
-                           NO plain sentences. EXACTLY 2-3 bullets per cell.
-
-                           EXAMPLE OF DESIRED RATIONALE CELL FORMAT:
-                                <td>
-                                    <ul>
-                                        <li>High review-to-rating ratio suggests consistent quality.</li>
-                                        <li>Price point is 20% lower than neighborhood average.</li>
-                                        <li>Recent 2026 check-ins confirm wait times under 15 mins.</li>
-                                    </ul>
-                                </td>
-
-                                [Begin Table Generation Now]
-
-                        """
+"""
 
             response = client.models.generate_content(
                 model="gemini-2.5-flash-lite",
