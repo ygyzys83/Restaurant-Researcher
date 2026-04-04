@@ -31,8 +31,6 @@ if st.button("Unlock App"):
 if not st.session_state.app_unlocked:
     st.stop()  # This stops execution of the rest of the script
 
-# --- UI Header (only shown after unlock) ---
-st.write("Real local spots. Zero guesswork.")
 
 # --- Sidebar for Settings
 with st.sidebar:
