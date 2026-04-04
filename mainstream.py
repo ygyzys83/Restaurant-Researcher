@@ -55,7 +55,7 @@ if run_button:
                   <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">
                 - Header cells: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">
                 - Data cells: <td style="padding:8px; border:1px solid #ddd; vertical-align:top;">
-                - Columns in this order: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale
+                - Columns in this order: Name, Distance, Rating, Review Count, Hours of Operation, Value Score (1-10), Value Score Rationale
                 - For Value Score (1-10): Compare the price versus quality versus customer satisfaction vs portions relative to other restaurants of this type. Utilize Reddit and Google Maps reviews for insight if available.
                 - For Value Score Rationale: Use chain of thought logic to justify the Value Score. Use exactly 2-3 short bullets in an HTML <ul><li>...</li></ul>. Quotes from Reddit and Google Maps reviews that support the logic are encouraged.
                 
