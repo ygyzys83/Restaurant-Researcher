@@ -29,7 +29,7 @@ if run_button:
     with st.spinner("Searching live web..."):
         try:
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-            grounding_tool = types.Tool(google_search=types.GoogleSearch())
+            grounding_tool = types.Tool(google_maps=types.GoogleMaps())
 
             search_query = f"Highest rated {res_type} restaurants near {address} Google Maps"
 
@@ -73,6 +73,7 @@ if run_button:
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
                     temperature=0.15,
+                    max_output_tokens=8192,
                 )
             )
 
