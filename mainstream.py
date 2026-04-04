@@ -5,6 +5,13 @@ import smtplib
 import re
 from email.message import EmailMessage
 
+
+st.set_page_config(
+    page_title="Neighborhood Nosh",
+    layout="wide",           # ← This is the key line
+    initial_sidebar_state="expanded"
+)
+
 # --- UI Header ---
 st.title("Neighborhood Nosh")
 st.caption("Real local spots. Zero guesswork.")
