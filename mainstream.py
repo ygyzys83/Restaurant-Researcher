@@ -16,7 +16,7 @@ st.set_page_config(
 st.title("Neighborhood Nosh")
 st.caption("Real local spots. Zero guesswork.")
 
-# Display header image (shows before AND after unlock - looks better this way)
+# Display header image
 st.image("images/neighborhood_nosh.jpg", use_container_width=False)
 
 # App Password Check (placed at the very top)
@@ -54,7 +54,7 @@ with st.sidebar:
     recipient_email = st.text_input("Recipient Email", st.secrets["GMAIL_USER"])
     run_button = st.button("Research & Email")
 
-# --- The Logic (Inside the button click) ---
+# --- The Logic (Inside the search button click) ---
 if run_button:
     research_results = None
     usage_data = None
