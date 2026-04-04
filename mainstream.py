@@ -32,56 +32,73 @@ if run_button:
     research_results = None
     usage_data = None
 
-    with st.spinner("Searching the web with Gemini + Google grounding..."):
+    with st.spinner("Searching live web with Gemini grounding..."):
         try:
-            # 1. Gemini Client
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
+            # Use Google Search grounding (kept as is — it's working for you)
             grounding_tool = types.Tool(google_search=types.GoogleSearch())
 
-            search_query = f"Best {res_type} restaurants near {address} with high ratings on Google Maps"
+            # === IMPROVED SEARCH QUERY ===
+            search_query = f"{res_type} restaurants near {address} best highly rated"
 
+            # === MUCH STRONGER PROMPT ===
             prompt = f"""
-You are a local restaurant concierge in 2026.
+You are an expert local restaurant researcher in 2026.
 
-Search for UP TO {num_results} restaurants that best match these criteria:
-- Within {miles} driving miles of: {address}
-- Minimum {min_rating} stars on Google Maps
-- At least {min_reviews} Google reviews
+Task: Find the **best {res_type} restaurants** near the address: **{address}**
 
-Rules:
-1. Verify each restaurant is currently open (or has recent 2026 activity).
-2. Return ONLY a valid HTML table. Do NOT wrap it in ```html or any markdown.
-3. Start directly with <table ...>
-4. Use this exact table style:
-   <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">
-   <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">
-   <td style="padding:8px; border:1px solid #ddd;">
-5. Columns: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale
-6. For the Rationale column: Use an HTML <ul><li>...</li></ul> with exactly 2-3 concise bullets. No plain text paragraphs.
+Requirements (strict):
+- Focus **only** on {res_type} restaurants (or very close variants like "pizza place", "pizzeria", etc. if {res_type} is pizza).
+- They must be within approximately {miles} driving miles of the given address.
+- Each restaurant must have **at least {min_rating} stars** on Google Maps.
+- Each restaurant must have **at least {min_reviews} reviews** on Google Maps.
+- Prioritize places that are currently open or have recent positive activity in 2026.
 
-Begin generating the table now.
+Return **up to {num_results} restaurants**. 
+If fewer than {num_results} fully match all criteria, return as many as possible that come closest (but never return non-{res_type} places just to fill the number).
+
+Output Format:
+Return **ONLY** a valid HTML table. Do not include any explanation, markdown, or ```html blocks.
+Start directly with the <table> tag.
+
+Table specifications:
+- <table style="width:100%; border:1px solid #333; border-collapse:collapse; font-family:sans-serif;">
+- Header: <th style="background-color:#2c3e50; color:white; padding:8px; border:1px solid #333;">
+- Cells: <td style="padding:8px; border:1px solid #ddd; vertical-align:top;">
+- Columns: Name, Distance, Rating, Review Count, Value Score (1-10), Value Score Rationale
+
+For the "Value Score Rationale" column: Use an HTML unordered list with **exactly 2-3 short bullets**. No full sentences.
+
+Example of correct rationale cell:
+<td>
+    <ul>
+        <li>Excellent 4.7 rating with over 800 reviews shows strong consistency.</li>
+        <li>Generous portions at reasonable prices for the area.</li>
+        <li>Recent 2026 reviews praise fast service and fresh ingredients.</li>
+    </ul>
+</td>
+
+Now generate the table.
 """
 
             response = client.models.generate_content(
-                model="gemini-2.5-flash-lite",
+                model="gemini-2.5-flash-lite",  # or gemini-2.5-flash if you have quota
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
-                    temperature=0.2,
+                    temperature=0.1,  # Lower temperature = more consistent & literal
                 )
             )
 
-            # 2. Process the HTML response
+            # Process response (same as before, slightly cleaned)
             raw_text = response.text or ""
-            # Clean possible markdown fences
             clean_html = re.sub(r'```(?:html)?\s*', '', raw_text).strip()
 
-            # Extract the table if present
             table_match = re.search(r'(<table.*?</table>)', clean_html, re.DOTALL | re.IGNORECASE)
             research_results = table_match.group(1) if table_match else clean_html
 
-            # 3. Usage stats
+            # Usage data
             if hasattr(response, 'usage_metadata') and response.usage_metadata:
                 usage_data = {
                     "in": response.usage_metadata.prompt_token_count or 0,
@@ -90,35 +107,27 @@ Begin generating the table now.
             else:
                 usage_data = {"in": 0, "out": 0}
 
-            # 4. Send Email
+            # === Email sending (unchanged, but kept for completeness) ===
             msg = EmailMessage()
-            msg['Subject'] = f"🍽️ Restaurant Research: {res_type.capitalize()} near {address[:40]}..."
+            msg['Subject'] = f"🍕 Restaurant Research: {res_type.capitalize()} near {address[:50]}"
             msg['From'] = st.secrets["GMAIL_USER"]
             msg['To'] = recipient_email
-            msg.set_content("Please view this email in an HTML-capable client.")
+            msg.set_content("Please view this email with HTML enabled.")
             msg.add_alternative(f"<html><body>{research_results}</body></html>", subtype='html')
 
-            # FIXED SMTP connection
-            with smtplib.SMTP("smtp.gmail.com", port=587) as server:
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
                 server.starttls()
                 server.login(st.secrets["GMAIL_USER"], st.secrets["GMAIL_PASS"])
                 server.send_message(msg)
 
-            st.success("✅ Research complete and email sent successfully!")
+            st.success("✅ Research complete and email sent!")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
-            if "getaddrinfo" in str(e).lower() or "smtp" in str(e).lower():
-                st.info("**Tip:** This is usually a network/DNS issue or typo in the SMTP server name. "
-                        "Make sure you're not behind a restrictive firewall/VPN.")
-            elif "API key" in str(e).lower() or "auth" in str(e).lower():
-                st.info("Check your GEMINI_API_KEY or Gmail credentials in `.streamlit/secrets.toml`")
-            else:
-                st.info("Check your secrets and internet connection.")
 
-    # --- Display Results (outside the spinner) ---
+    # Display results
     if research_results:
-        st.markdown("### Research Results")
+        st.markdown("### 📋 Research Results")
         st.markdown(research_results, unsafe_allow_html=True)
 
     if usage_data:
