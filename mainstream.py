@@ -13,23 +13,23 @@ st.caption("Real local spots. Zero guesswork.")
 if "app_unlocked" not in st.session_state:
     st.session_state.app_unlocked = False
 
-app_password = st.text_input(
-    "Enter App Password to Unlock",
-    type="password",
-    placeholder="Enter the password to use this app..."
-)
-
-if st.button("Unlock App"):
-    if app_password == st.secrets["APP_PASSWORD"]:
-        st.session_state.app_unlocked = True
-        st.success("✅ App unlocked successfully!")
-        st.rerun()
-    else:
-        st.error("❌ Incorrect password. Access denied.")
-
-# Only show the rest of the app if unlocked
+# Show password input ONLY if not yet unlocked
 if not st.session_state.app_unlocked:
-    st.stop()  # This stops execution of the rest of the script
+    app_password = st.text_input(
+        "Enter App Password to Unlock",
+        type="password",
+        placeholder="Enter the password to use this app..."
+    )
+
+    if st.button("Unlock App"):
+        if app_password == st.secrets["APP_PASSWORD"]:
+            st.session_state.app_unlocked = True
+            st.success("✅ App unlocked successfully!")
+            st.rerun()
+        else:
+            st.error("❌ Incorrect password. Access denied.")
+
+    st.stop()  # Stop execution until unlocked
 
 
 # --- Sidebar for Settings
