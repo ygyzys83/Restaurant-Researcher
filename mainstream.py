@@ -104,7 +104,7 @@ if run_button:
             msg.set_content("Please enable HTML to view this report.")
             msg.add_alternative(f"<html><body>{research_results}</body></html>", subtype='html')
 
-            with smtplib.SMTP("://gmail.com", port=587) as server:
+            with smtplib.SMTP("smtp.gmail.com", port=587) as server:
                 server.starttls()
                 server.login(st.secrets["GMAIL_USER"], st.secrets["GMAIL_PASS"])
                 server.send_message(msg)
