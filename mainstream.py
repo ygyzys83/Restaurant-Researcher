@@ -7,6 +7,30 @@ from email.message import EmailMessage
 
 # --- UI Header ---
 st.title("GT's Grounded Restaurant Researcher v2026")
+
+# App Password Check (placed at the very top)
+if "app_unlocked" not in st.session_state:
+    st.session_state.app_unlocked = False
+
+app_password = st.text_input(
+    "Enter App Password to Unlock",
+    type="password",
+    placeholder="Enter the password to use this app..."
+)
+
+if st.button("Unlock App"):
+    if app_password == st.secrets["APP_PASSWORD"]:
+        st.session_state.app_unlocked = True
+        st.success("✅ App unlocked successfully!")
+        st.rerun()
+    else:
+        st.error("❌ Incorrect password. Access denied.")
+
+# Only show the rest of the app if unlocked
+if not st.session_state.app_unlocked:
+    st.stop()  # This stops execution of the rest of the script
+
+# --- UI Header (only shown after unlock) ---
 st.write("Find local spots and get the results emailed to you.")
 
 # --- Sidebar for Settings
