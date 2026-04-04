@@ -9,6 +9,9 @@ from email.message import EmailMessage
 st.title("Neighborhood Nosh")
 st.caption("Real local spots. Zero guesswork.")
 
+# Display header image (shows before AND after unlock - looks better this way)
+st.image("images/neighborhood_nosh.jpg", use_container_width=True)
+
 # App Password Check (placed at the very top)
 if "app_unlocked" not in st.session_state:
     st.session_state.app_unlocked = False
