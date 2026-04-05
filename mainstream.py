@@ -12,6 +12,16 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Hide the "Manage app" button in bottom right (Community Cloud)
+st.markdown("""
+    <style>
+    [data-testid="stAppDeployButton"] {
+        display: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # --- UI Header ---
 st.title("Bitewise")
 st.caption("Real local spots. Zero guesswork.")
