@@ -62,11 +62,7 @@ if run_button:
             prompt = f"""
                 You are a strict local restaurant researcher using Google Maps data in 2026.
                 
-                Location: {address}
-
-                First, determine the approximate latitude and longitude of the given address to ensure accurate distance calculations.
-                
-                Task: Find up to {num_results} actual {res_type} restaurants near the latitude and longitude determined above.
+                Task: Find up to {num_results} actual {res_type} restaurants near {address}.
 
                 Requirements — follow these strictly:
                 - Only {res_type} restaurants or restaurants that have a reputation for good {res_type}.
