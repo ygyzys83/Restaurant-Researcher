@@ -5,28 +5,11 @@ import smtplib
 import re
 from email.message import EmailMessage
 
-
-st.set_page_config(
-    page_title="Bitewise",
-    layout="wide",           # ← This is the key line
-    initial_sidebar_state="expanded"
-)
-
-# Hide the "Manage app" button in bottom right (Community Cloud)
-st.markdown("""
-    <style>
-    [data-testid="stAppDeployButton"] {
-        display: none !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-
 # --- UI Header ---
-st.title("Bitewise")
+st.title("Neighborhood Nosh")
 st.caption("Real local spots. Zero guesswork.")
 
-# Display header image
+# Display header image (shows before AND after unlock - looks better this way)
 st.image("images/neighborhood_nosh.jpg", use_container_width=False)
 
 # App Password Check (placed at the very top)
@@ -51,7 +34,6 @@ if not st.session_state.app_unlocked:
 
     st.stop()  # Stop execution until unlocked
 
-
 # --- Sidebar for Settings
 with st.sidebar:
     st.header("Search Parameters")
@@ -64,7 +46,7 @@ with st.sidebar:
     recipient_email = st.text_input("Recipient Email", st.secrets["GMAIL_USER"])
     run_button = st.button("Research & Email")
 
-# --- The Logic (Inside the search button click) ---
+# --- The Logic (Inside the button click) ---
 if run_button:
     research_results = None
     usage_data = None
@@ -73,7 +55,7 @@ if run_button:
         try:
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-            maps_tool = types.Tool(
+            grounding_tool = types.Tool(
                 google_maps=types.GoogleMaps()
             )
 
@@ -81,20 +63,20 @@ if run_button:
                 You are a strict local restaurant researcher using Google Maps data in 2026.
                 
                 Location: {address}
-                
+
                 First, determine the approximate latitude and longitude of the given address to ensure accurate distance calculations.
                 
-                Task: Find up to {num_results} actual {res_type} restaurants near this location.
-                
+                Task: Find up to {num_results} actual {res_type} restaurants near the latitude and longitude determined above.
+
                 Requirements — follow these strictly:
                 - Only {res_type} restaurants or restaurants that have a reputation for good {res_type}.
                 - Within approximately {miles} driving miles of {address}
                 - Minimum {min_rating} stars on Google Maps
                 - Minimum {min_reviews} reviews on Google Maps
                 - Only places that are currently open or have recent activity.
-                
+
                 Do NOT return any restaurant that fails the rating or review minimum. It is better to return fewer results than to include lower-quality ones.
-                
+
                 Output rules:
                 - Return ONLY a valid HTML table. Start immediately with <table>.
                 - Do not add any explanation or markdown.
@@ -105,7 +87,7 @@ if run_button:
                 - Columns in this order: Name, Distance From {address}, Rating, Review Count, Hours of Operation, Value Score (1-10), Value Score Rationale
                 - For Value Score (1-10): Compare the price versus quality versus customer satisfaction vs portions relative to other restaurants of this type. Utilize Reddit and Google Maps reviews for insight if available.
                 - For Value Score Rationale: Use chain of thought logic to justify the Value Score. Use exactly 2-3 short bullets in an HTML <ul><li>...</li></ul>. Quotes from Reddit and Google Maps reviews that support the logic are encouraged.
-                
+
                 Begin generating the table now.
 
 """
@@ -114,7 +96,7 @@ if run_button:
                 model="gemini-2.5-flash-lite",
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    tools=[maps_tool],
+                    tools=[grounding_tool],
                     temperature=0.15,
                     max_output_tokens=16384,
                 )
