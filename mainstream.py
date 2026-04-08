@@ -73,14 +73,18 @@ if run_button:
         try:
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-            grounding_tool = types.Tool(
+            maps_tool = types.Tool(
                 google_maps=types.GoogleMaps()
             )
 
             prompt = f"""
                 You are a strict local restaurant researcher using Google Maps data in 2026.
                 
-                Task: Find up to {num_results} actual {res_type} restaurants near {address}.
+                Location: {address}
+                
+                First, determine the approximate latitude and longitude of the given address to ensure accurate distance calculations.
+                
+                Task: Find up to {num_results} actual {res_type} restaurants near this location.
                 
                 Requirements — follow these strictly:
                 - Only {res_type} restaurants or restaurants that have a reputation for good {res_type}.
@@ -110,7 +114,7 @@ if run_button:
                 model="gemini-2.5-flash-lite",
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    tools=[grounding_tool],
+                    tools=[maps_tool],
                     temperature=0.15,
                     max_output_tokens=16384,
                 )
