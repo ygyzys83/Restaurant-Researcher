@@ -1,6 +1,7 @@
 # Bitewise
 
-**Real local spots. Zero guesswork.**
+## **Real local spots. Zero guesswork.**
+
 
 Bitewise is a smart, AI-powered Streamlit app that helps you discover high-quality local restaurants based on your specific cravings, location, and quality standards. It leverages **Google Gemini** with live Google Maps grounding to research actual open restaurants, then delivers a beautifully formatted HTML report straight to your email.
 
@@ -20,8 +21,8 @@ No more scrolling through generic lists or low-rated places — get curated, hig
 
 ## 🚀 Live Demo
 
-The app is deployed and running on Streamlit Cloud → **[Try Bitewise](https://your-streamlit-app-url.streamlit.app)**  
-*(Replace with your actual deployed link)*
+The app is deployed and running on Streamlit Cloud → **[Try Bitewise](https://restaurant-researcher-pj29vnyrj2iddzptnl8jka.streamlit.app/)**  
+
 
 > **Note**: You'll need the app password (stored in secrets) to unlock the full functionality.
 
@@ -66,7 +67,6 @@ The app is deployed and running on Streamlit Cloud → **[Try Bitewise](https://
 4. **Run Locally**
     ```bash
    streamlit run mainstream.py
-   
 
 ## 📁 Project Structure
 
