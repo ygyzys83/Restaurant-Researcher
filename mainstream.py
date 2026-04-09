@@ -6,7 +6,7 @@ import re
 from email.message import EmailMessage
 
 # --- UI Header ---
-st.title("Neighborhood Nosh")
+st.title("Bitewise")
 st.caption("Real local spots. Zero guesswork.")
 
 # Display header image (shows before AND after unlock - looks better this way)
