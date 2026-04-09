@@ -143,7 +143,7 @@ Contributions, issues, and feature requests are welcome!
 
 ## 📄 License
 
-This project is open-sourced under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+This project is open-sourced under the **MIT License**.
 
 ---
 
