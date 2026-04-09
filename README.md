@@ -34,6 +34,36 @@ The app is deployed and running on Streamlit Cloud → **[Try Bitewise](https://
 4. Results are emailed to you and displayed directly in the app.
 5. You get token usage and cost breakdown for awareness.
 
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    A[User Input\nCuisine, Address, Filters] --> B[Streamlit UI + Password Gate]
+    B --> C[Gemini API Call\nwith Google Maps Grounding]
+    C --> D[Process Response\nExtract HTML Table]
+    D --> E[Send Email\nvia Gmail SMTP]
+    D --> F[Display Results\nin App]
+    
+    G[Secrets Manager\n.streamlit/secrets.toml] -->|Provides| B
+    G -->|Provides| C
+    G -->|Provides| E
+    
+    subgraph External Services
+        C
+        E
+    end
+
+    classDef ui fill:#e3f2fd,stroke:#1976d2
+    classDef ai fill:#f3e5f5,stroke:#7b1fa2
+    classDef email fill:#e8f5e9,stroke:#388e3c
+    classDef secrets fill:#fff3e0,stroke:#f57c00
+
+    class B ui
+    class C ai
+    class E email
+    class G secrets
+```
+
 ## 📋 Requirements
 
 - Python 3.9+
@@ -70,15 +100,16 @@ The app is deployed and running on Streamlit Cloud → **[Try Bitewise](https://
 
 ## 📁 Project Structure
 
+```text
 bitewise/
 ├── app.py                  # Main Streamlit application
 ├── images/
 │   └── neighborhood_nosh.jpg
 ├── .streamlit/
-│   └── secrets.toml        # (not committed)
+│   └── secrets.toml        # (never commit this file)
 ├── requirements.txt
 └── README.md
-
+```
 
 ## 🔐 Security Notes
 
