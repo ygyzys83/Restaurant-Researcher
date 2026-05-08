@@ -89,7 +89,7 @@ if run_button:
 """
 
             response = client.models.generate_content(
-                model="gemini-2.5-flash-lite",
+                model="gemini-3-flash-preview",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[grounding_tool],
